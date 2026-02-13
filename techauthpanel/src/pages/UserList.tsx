@@ -34,7 +34,6 @@ const UserList = () => {
         try {
             setLoading(true);
             const response = await api.get('/admin/users');
-            // The API returns { success: true, data: [...] }
             setUsers(response.data.data);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to fetch users.');
@@ -44,122 +43,101 @@ const UserList = () => {
     };
 
     const getStatusBadge = (isActive: boolean) => (
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+        <div className={`badge ${isActive ? 'badge-success' : 'badge-error'}`}>
+            <div className="badge-dot" style={{ backgroundColor: isActive ? '#10b981' : '#ef4444' }}></div>
             {isActive ? 'Active' : 'Deactivated'}
         </div>
     );
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                    <h2 className="text-2xl font-bold text-white">System Users</h2>
-                    <p className="text-slate-400">Manage and monitor all users registered in the system.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="page-header">
+                <div className="title-group">
+                    <h2>System Users</h2>
+                    <p>Manage and monitor all users registered in the system.</p>
                 </div>
-                <button className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 transition-all active:scale-95">
-                    <UserPlus className="w-5 h-5" />
+                <button className="btn-primary">
+                    <UserPlus size={18} />
                     Add New User
                 </button>
             </div>
 
-            <div className="glass rounded-2xl overflow-hidden border-white/5 bg-white/[0.02]">
-                {/* Table Filters/Actions */}
-                <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative w-full md:w-80">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                        <input
-                            type="text"
-                            placeholder="Search user by name or email..."
-                            className="w-full bg-white/5 border border-white/5 rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-                        />
+            <div className="data-card">
+                {/* Table Filters */}
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div className="header-search">
+                        <Search className="search-icon" size={16} />
+                        <input type="text" placeholder="Search user by name or email..." />
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-                            <Filter className="w-4 h-4" />
-                            Filter
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button className="btn-icon">
+                            <Filter size={16} />
+                            <span style={{ marginLeft: '0.5rem', fontSize: '0.875rem' }}>Filter</span>
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-                            <ArrowUpDown className="w-4 h-4" />
-                            Sort
+                        <button className="btn-icon">
+                            <ArrowUpDown size={16} />
+                            <span style={{ marginLeft: '0.5rem', fontSize: '0.875rem' }}>Sort</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
+                {/* Table Content */}
+                <div className="table-wrapper">
                     {loading ? (
-                        <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                            <p className="text-slate-500 text-sm font-medium">Fetching users from database...</p>
+                        <div style={{ padding: '5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                            <Loader2 className="animate-spin" size={40} color="#6366f1" />
+                            <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Fetching users from database...</p>
                         </div>
                     ) : error ? (
-                        <div className="p-10 text-center">
-                            <p className="text-red-400">{error}</p>
-                            <button
-                                onClick={fetchUsers}
-                                className="mt-4 text-primary text-sm font-semibold underline underline-offset-4"
-                            >
-                                Try Again
-                            </button>
+                        <div style={{ padding: '3rem', textAlign: 'center' }}>
+                            <p style={{ color: '#ef4444' }}>{error}</p>
+                            <button onClick={fetchUsers} style={{ background: 'none', border: 'none', color: '#6366f1', textDecoration: 'underline', marginTop: '1rem', cursor: 'pointer' }}>Try Again</button>
                         </div>
                     ) : (
-                        <table className="w-full text-left border-collapse">
+                        <table>
                             <thead>
-                                <tr className="bg-white/[0.02]">
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">User Profile</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Role</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Join Date</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                                <tr>
+                                    <th>User Profile</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Join Date</th>
+                                    <th style={{ textAlign: 'right' }}>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/5">
+                            <tbody>
                                 {users.length > 0 ? users.map((u) => (
-                                    <tr key={u.id} className="hover:bg-white/[0.01] group transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                                    <tr key={u.id}>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.875rem', color: '#94a3b8' }}>
                                                     {u.firstName?.[0] || u.email[0].toUpperCase()}
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-semibold text-white">{u.firstName} {u.lastName}</span>
-                                                    <span className="text-xs text-slate-500">{u.email}</span>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontWeight: '600' }}>{u.firstName} {u.lastName}</span>
+                                                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{u.email}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                {u.role === 'ADMIN' ? (
-                                                    <Shield className="w-4 h-4 text-primary" />
-                                                ) : null}
-                                                <span className="text-sm text-slate-300 font-medium">{u.role}</span>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                {u.role === 'ADMIN' && <Shield size={14} color="#6366f1" />}
+                                                <span style={{ fontWeight: '500' }}>{u.role}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            {getStatusBadge(u.isActive)}
+                                        <td>{getStatusBadge(u.isActive)}</td>
+                                        <td>
+                                            <span style={{ color: '#64748b' }}>{new Date(u.createdAt).toLocaleDateString()}</span>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-sm text-slate-500">
-                                                {new Date(u.createdAt).toLocaleDateString()}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button title="Edit" className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                                <button title="View Profile" className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all">
-                                                    <ExternalLink className="w-4 h-4" />
-                                                </button>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                                                <button className="btn-icon"><MoreVertical size={14} /></button>
+                                                <button className="btn-icon"><ExternalLink size={14} /></button>
                                             </div>
                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-20 text-center text-slate-500">
-                                            No users found in the system.
-                                        </td>
+                                        <td colSpan={5} style={{ padding: '4rem', textAlign: 'center', color: '#64748b' }}>No users found in the system.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -167,12 +145,12 @@ const UserList = () => {
                     )}
                 </div>
 
-                {/* Pagination placeholder */}
-                <div className="p-6 border-t border-white/5 flex items-center justify-between">
-                    <p className="text-sm text-slate-500">Showing <span className="text-white font-medium">{users.length}</span> of <span className="text-white font-medium">{users.length}</span> results</p>
-                    <div className="flex items-center gap-2">
-                        <button disabled className="px-3 py-1.5 rounded-lg border border-white/5 text-slate-600 cursor-not-allowed">Previous</button>
-                        <button disabled className="px-3 py-1.5 rounded-lg border border-white/5 text-slate-600 cursor-not-allowed">Next</button>
+                {/* Footer */}
+                <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Showing <b>{users.length}</b> users</p>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn-icon" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>Prev</button>
+                        <button className="btn-icon" disabled style={{ opacity: 0.5, cursor: 'not-allowed' }}>Next</button>
                     </div>
                 </div>
             </div>
