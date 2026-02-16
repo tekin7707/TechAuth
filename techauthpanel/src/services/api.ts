@@ -11,8 +11,10 @@ const api = axios.create({
 // Request interceptor to add Authorization header
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    if (token && token !== 'undefined') {
+        if (config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
     }
     return config;
 });
