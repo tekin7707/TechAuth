@@ -18,8 +18,8 @@ const Login = () => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data.data;
-            localStorage.setItem('token', token);
+            const { tokens, user } = response.data.data;
+            localStorage.setItem('token', tokens.accessToken);
             localStorage.setItem('user', JSON.stringify(user));
             navigate('/dashboard');
         } catch (err: any) {
